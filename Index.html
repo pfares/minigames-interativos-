@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minigames Interativos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --accent: #e74c3c;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --purple: #9b59b6;
+            --orange: #f39c12;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background-attachment: fixed;
+            color: white;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+        
+        header {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            text-align: center;
+            padding: 2rem 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .game-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .game-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.4);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .game-thumb {
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-thumb::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            opacity: 0.8;
+            z-index: -1;
+        }
+        
+        .game-info {
+            padding: 1.5rem;
+        }
+        
+        .game-info h3 {
+            margin-bottom: 0.5rem;
+            color: white;
+            font-size: 1.4rem;
+        }
+        
+        .game-info p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+        }
+        
+        .game-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .back-button {
+            background: var(--dark);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.3s;
+        }
+        
+        .back-button:hover {
+            background: #1e2a3a;
+        }
+        
+        .game-content {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Jogo da Memória */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .memory-card {
+            height: 120px;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: transform 0.3s, opacity 0.3s;
+            transform-style: preserve-3d;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .memory-card.flipped {
+            transform: rotateY(180deg);
+            background: linear-gradient(135deg, var(--secondary), var(--orange));
+        }
+        
+        .memory-card.matched {
+            opacity: 0.5;
+            cursor: default;
+        }
+        
+        /* Quebra-Cabeça */
+        .puzzle-container {
+            max-width: 400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .puzzle-piece {
+            width: 100%;
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: transform 0.3s;
+        }
+        
+        .puzzle-piece.empty {
+            background: transparent;
+            cursor: default;
+        }
+        
+        /* Jogo da Velha */
+        .tic-tac-toe {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            max-width: 350px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .cell {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+        
+        .cell:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Jogo de Sequência */
+        .sequence-game {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .sequence-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .sequence-btn {
+            width: 100px;
+            height: 100px;
+            border-radius: 20px;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .sequence-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .score-display {
+            font-size: 1.4rem;
+            margin-top: 1rem;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+        }
+        
+        .game-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+        
+        .stat {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.7rem 1.2rem;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .instructions {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .instructions h2 {
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+        
+        @media (max-width: 768px) {
+            .games-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            .memory-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .memory-card {
+                height: 100px;
+            }
+            
+            .game-content {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-gamepad"></i> Minigames Interativos</h1>
+        <p class="tagline">Desafie suas habilidades com esses jogos divertidos!</p>
+    </header>
+    
+    <div class="container">
+        <div class="instructions">
+            <h2><i class="fas fa-info-circle"></i> Como Jogar</h2>
+            <p>Clique em qualquer jogo abaixo para começar a jogar. Cada jogo tem suas próprias regras e objetivos. Divirta-se!</p>
+        </div>
+        
+        <div class="games-grid">
+            <div class="game-card" data-game="memory">
+                <div class="game-thumb"><i class="fas fa-brain"></i></div>
+                <div class="game-info">
+                    <h3>Jogo da Memória</h3>
+                    <p>Encontre os pares correspondentes no menor tempo possível.</p>
+                </div>
+            </div>
+            
+            <div class="game-card" data-game="puzzle">
+                <div class="game-thumb"><i class="fas fa-puzzle-piece"></i></div>
+                <div class="game-info">
+                    <h3>Quebra-Cabeça</h3>
+                    <p>Organize as peças para formar a sequência correta.</p>
+                </div>
+            </div>
+            
+            <div class="game-card" data-game="tictactoe">
+                <div class="game-thumb"><i class="fas fa-times"></i></div>
+                <div class="game-info">
+                    <h3>Jogo da Velha</h3>
+                    <p>Clássico jogo de estratégia para dois jogadores.</p>
+                </div>
+            </div>
+            
+            <div class="game-card" data-game="sequence">
+                <div class="game-thumb"><i class="fas fa-sort-amount-down-alt"></i></div>
+                <div class="game-info">
+                    <h3>Sequência</h3>
+                    <p>Repita a sequência de cores na ordem correta.</p>
+                </div>
+            </div>
+            
+            <div class="game-card" data-game="coming-soon">
+                <div class="game-thumb"><i class="fas fa-dice"></i></div>
+                <div class="game-info">
+                    <h3>Jogo de Dados</h3>
+                    <p>Em breve - mais diversão garantida!</p>
+                </div>
+            </div>
+            
+            <div class="game-card" data-game="coming-soon">
+                <div class="game-thumb"><i class="fas fa-chess"></i></div>
+                <div class="game-info">
+                    <h3>Xadrez</h3>
+                    <p>Em breve - mais diversão garantida!</p>
+                </div>
+            </div>
+            
+            <div class="game-card" data-game="coming-soon">
+                <div class="game-thumb"><i class="fas fa-palette"></i></div>
+                <div class="game-info">
+                    <h3>Color Match</h3>
+                    <p>Em breve - mais diversão garantida!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tela do Jogo da Memória -->
+    <div id="memory-game" class="game-screen">
+        <div class="game-header">
+            <button class="back-button"><i class="fas fa-arrow-left"></i> Voltar</button>
+            <h2><i class="fas fa-brain"></i> Jogo da Memória</h2>
+            <div class="game-stats">
+                <div class="stat"><i class="fas fa-clock"></i> Tempo: <span id="memory-timer">0</span>s</div>
+                <div class="stat"><i class="fas fa-sync-alt"></i> Movimentos: <span id="memory-moves">0</span></div>
+            </div>
+        </div>
+        
+        <div class="game-content">
+            <div class="memory-grid" id="memory-board">
+                <!-- Cartas geradas via JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tela do Quebra-Cabeça -->
+    <div id="puzzle-game" class="game-screen">
+        <div class="game-header">
+            <button class="back-button"><i class="fas fa-arrow-left"></i> Voltar</button>
+            <h2><i class="fas fa-puzzle-piece"></i> Quebra-Cabeça</h2>
+            <div class="game-stats">
+                <div class="stat"><i class="fas fa-sync-alt"></i> Movimentos: <span id="puzzle-moves">0</span></div>
+            </div>
+        </div>
+        
+        <div class="game-content">
+            <div class="puzzle-container" id="puzzle-board">
+                <!-- Peças geradas via JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tela do Jogo da Velha -->
+    <div id="tictactoe-game" class="game-screen">
+        <div class="game-header">
+            <button class="back-button"><i class="fas fa-arrow-left"></i> Voltar</button>
+            <h2><i class="fas fa-times"></i> Jogo da Velha</h2>
+            <div class="game-stats">
+                <div class="stat"><i class="fas fa-user"></i> Vez do: <span id="current-player">X</span></div>
+            </div>
+        </div>
+        
+        <div class="game-content">
+            <div class="tic-tac-toe" id="tictactoe-board">
+                <div class="cell" data-index="0"></div>
+                <div class="cell" data-index="1"></div>
+                <div class="cell" data-index="2"></div>
+                <div class="cell" data-index="3"></div>
+                <div class="cell" data-index="4"></div>
+                <div class="cell" data-index="5"></div>
+                <div class="cell" data-index="6"></div>
+                <div class="cell" data-index="7"></div>
+                <div class="cell" data-index="8"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tela do Jogo de Sequência -->
+    <div id="sequence-game" class="game-screen">
+        <div class="game-header">
+            <button class="back-button"><i class="fas fa-arrow-left"></i> Voltar</button>
+            <h2><i class="fas fa-sort-amount-down-alt"></i> Jogo de Sequência</h2>
+            <div class="game-stats">
+                <div class="stat"><i class="fas fa-layer-group"></i> Nível: <span id="sequence-level">1</span></div>
+                <div class="stat"><i class="fas fa-star"></i> Pontuação: <span id="sequence-score">0</span></div>
+            </div>
+        </div>
+        
+        <div class="game-content">
+            <div class="sequence-game">
+                <p>Observe e repita a sequência!</p>
+                <div class="sequence-buttons">
+                    <button class="sequence-btn" data-color="red" style="background: linear-gradient(135deg, #e74c3c, #c0392b);"><i class="fas fa-circle"></i></button>
+                    <button class="sequence-btn" data-color="green" style="background: linear-gradient(135deg, #2ecc71, #27ae60);"><i class="fas fa-circle"></i></button>
+                    <button class="sequence-btn" data-color="blue" style="background: linear-gradient(135deg, #3498db, #2980b9);"><i class="fas fa-circle"></i></button>
+                    <button class="sequence-btn" data-color="yellow" style="background: linear-gradient(135deg, #f1c40f, #f39c12);"><i class="fas fa-circle"></i></button>
+                </div>
+                <button id="start-sequence" style="background: var(--secondary); color: white; border: none; padding: 1rem 2rem; border-radius: 50px; cursor: pointer; font-size: 1.1rem; margin-top: 1rem;">
+                    <i class="fas fa-play"></i> Iniciar
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Minigames Interativos &copy; 2023 - Todos os direitos reservados</p>
+        <p>Desenvolvido com <i class="fas fa-heart" style="color: #e74c3c;"></i> para amantes de jogos</p>
+    </footer>
+
+    <script>
+        // Elementos do DOM
+        const gameCards = document.querySelectorAll('.game-card');
+        const gameScreens = document.querySelectorAll('.game-screen');
+        const backButtons = document.querySelectorAll('.back-button');
+        
+        // Event Listeners
+        gameCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const gameType = card.getAttribute('data-game');
+                if (gameType === 'coming-soon') {
+                    alert('Este jogo estará disponível em breve!');
+                    return;
+                }
+                openGame(gameType);
+            });
+        });
+        
+        backButtons.forEach(button => {
+            button.addEventListener('click', closeAllGames);
+        });
+        
+        // Funções para abrir/fechar jogos
+        function openGame(gameType) {
+            closeAllGames();
+            document.getElementById(`${gameType}-game`).style.display = 'block';
+            
+            // Inicializar o jogo específico
+            switch(gameType) {
+                case 'memory':
+                    initMemoryGame();
+                    break;
+                case 'puzzle':
+                    initPuzzleGame();
+                    break;
+                case 'tictactoe':
+                    initTicTacToe();
+                    break;
+                case 'sequence':
+                    initSequenceGame();
+                    break;
+            }
+        }
+        
+        function closeAllGames() {
+            gameScreens.forEach(screen => {
+                screen.style.display = 'none';
+            });
+            
+            // Parar temporizadores
+            if (memoryGame.timerInterval) {
+                clearInterval(memoryGame.timerInterval);
+            }
+        }
+        
+        // Jogo da Memória
+        function initMemoryGame() {
+            const memoryBoard = document.getElementById('memory-board');
+            memoryBoard.innerHTML = '';
+            
+            const symbols = ['🍎', '🍌', '🍒', '🍓', '🍊', '🍐', '🥝', '🍇'];
+            const cards = [...symbols, ...symbols];
+            
+            // Embaralhar cartas
+            cards.sort(() => Math.random() - 0.5);
+            
+            // Criar cartas
+            cards.forEach((symbol, index) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+                card.setAttribute('data-index', index);
+                card.setAttribute('data-symbol', symbol);
+                card.innerHTML = '<i class="fas fa-question"></i>';
+                
+                card.addEventListener('click', () => {
+                    if (card.classList.contains('flipped') || card.classList.contains('matched') || memoryGame.flippedCards.length >= 2) return;
+                    
+                    card.innerHTML = symbol;
+                    card.classList.add('flipped');
+                    memoryGame.flippedCards.push(card);
+                    memoryGame.moves++;
+                    document.getElementById('memory-moves').textContent = memoryGame.moves;
+                    
+                    if (memoryGame.flippedCards.length === 2) {
+                        checkMemoryMatch();
+                    }
+                });
+                
+                memoryBoard.appendChild(card);
+            });
+            
+            // Iniciar temporizador
+            memoryGame.timer = 0;
+            memoryGame.moves = 0;
+            document.getElementById('memory-moves').textContent = '0';
+            memoryGame.timerInterval = setInterval(() => {
+                memoryGame.timer++;
+                document.getElementById('memory-timer').textContent = memoryGame.timer;
+            }, 1000);
+        }
+        
+        const memoryGame = {
+            flippedCards: [],
+            timer: 0,
+            moves: 0,
+            timerInterval: null
+        };
+        
+        function checkMemoryMatch() {
+            const [card1, card2] = memoryGame.flippedCards;
+            const isMatch = card1.getAttribute('data-symbol') === card2.getAttribute('data-symbol');
+            
+            if (isMatch) {
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                memoryGame.flippedCards = [];
+                
+                // Verificar se todas as cartas foram viradas
+                const allMatched = document.querySelectorAll('.memory-card.matched').length === 16;
+                if (allMatched) {
+                    clearInterval(memoryGame.timerInterval);
+                    setTimeout(() => {
+                        alert(`Parabéns! Você completou o jogo em ${memoryGame.timer} segundos e ${memoryGame.moves} movimentos!`);
+                    }, 500);
+                }
+            } else {
+                setTimeout(() => {
+                    card1.innerHTML = '<i class="fas fa-question"></i>';
+                    card2.innerHTML = '<i class="fas fa-question"></i>';
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    memoryGame.flippedCards = [];
+                }, 1000);
+            }
+        }
+        
+        // Quebra-Cabeça
+        function initPuzzleGame() {
+            const puzzleBoard = document.getElementById('puzzle-board');
+            puzzleBoard.innerHTML = '';
+            
+            const pieces = [1, 2, 3, 4, 5, 6, 7, 8, ''];
+            
+            // Embaralhar peças
+            for (let i = pieces.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pieces[i], pieces[j]] = [pieces[j], pieces[i]];
+            }
+            
+            // Criar peças
+            pieces.forEach((piece, index) => {
+                const pieceElement = document.createElement('div');
+                pieceElement.className = piece === '' ? 'puzzle-piece empty' : 'puzzle-piece';
+                pieceElement.innerHTML = piece === '' ? '' : `<span>${piece}</span>`;
+                pieceElement.setAttribute('data-index', index);
+                pieceElement.setAttribute('data-value', piece);
+                
+                if (piece !== '') {
+                    pieceElement.addEventListener('click', () => {
+                        movePuzzlePiece(pieceElement);
+                    });
+                }
+                
+                puzzleBoard.appendChild(pieceElement);
+            });
+            
+            puzzleGame.moves = 0;
+            document.getElementById('puzzle-moves').textContent = '0';
+        }
+        
+        const puzzleGame = {
+            moves: 0
+        };
+        
+        function movePuzzlePiece(piece) {
+            const emptyPiece = document.querySelector('.puzzle-piece.empty');
+            const pieceIndex = parseInt(piece.getAttribute('data-index'));
+            const emptyIndex = parseInt(emptyPiece.getAttribute('data-index'));
+            
+            // Verificar se a peça está adjacente ao espaço vazio
+            const adjacentIndexes = [
+                emptyIndex - 1, // esquerda
+                emptyIndex + 1, // direita
+                emptyIndex - 3, // acima
+                emptyIndex + 3  // abaixo
+            ];
+            
+            if (adjacentIndexes.includes(pieceIndex)) {
+                // Trocar posições
+                emptyPiece.innerHTML = piece.innerHTML;
+                emptyPiece.classList.remove('empty');
+                emptyPiece.setAttribute('data-value', piece.getAttribute('data-value'));
+                emptyPiece.addEventListener('click', function() {
+                    movePuzzlePiece(this);
+                });
+                
+                piece.innerHTML = '';
+                piece.classList.add('empty');
+                piece.setAttribute('data-value', '');
+                piece.removeEventListener('click', movePuzzlePiece);
+                
+                // Atualizar contador de movimentos
+                puzzleGame.moves++;
+                document.getElementById('puzzle-moves').textContent = puzzleGame.moves;
+                
+                // Verificar se o quebra-cabeça está resolvido
+                checkPuzzleSolved();
+            }
+        }
+        
+        function checkPuzzleSolved() {
+            const pieces = document.querySelectorAll('.puzzle-piece:not(.empty)');
+            let solved = true;
+            
+            pieces.forEach((piece, index) => {
+                if (parseInt(piece.getAttribute('data-value')) !== index + 1) {
+                    solved = false;
+                }
+            });
+            
+            if (solved) {
+                setTimeout(() => {
+                    alert(`Parabéns! Você resolveu o quebra-cabeça em ${puzzleGame.moves} movimentos!`);
+                }, 500);
+            }
+        }
+        
+        // Jogo da Velha
+        function initTicTacToe() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                cell.innerHTML = '';
+                cell.addEventListener('click', handleTicTacToeMove);
+            });
+            
+            ticTacToe.currentPlayer = 'X';
+            ticTacToe.gameOver = false;
+            document.getElementById('current-player').textContent = 'X';
+        }
+        
+        const ticTacToe = {
+            currentPlayer: 'X',
+            gameOver: false,
+            board: ['', '', '', '', '', '', '', '', '']
+        };
+        
+        function handleTicTacToeMove(e) {
+            if (ticTacToe.gameOver) return;
+            
+            const cell = e.target;
+            const index = parseInt(cell.getAttribute('data-index'));
+            
+            if (cell.innerHTML !== '') return;
+            
+            cell.innerHTML = ticTacToe.currentPlayer;
+            ticTacToe.board[index] = ticTacToe.currentPlayer;
+            
+            if (checkTicTacToeWin()) {
+                ticTacToe.gameOver = true;
+                setTimeout(() => {
+                    alert(`Jogador ${ticTacToe.currentPlayer} venceu!`);
+                }, 500);
+                return;
+            }
+            
+            if (checkTicTacToeDraw()) {
+                ticTacToe.gameOver = true;
+                setTimeout(() => {
+                    alert('Empate! Ninguém venceu.');
+                }, 500);
+                return;
+            }
+            
+            // Alternar jogador
+            ticTacToe.currentPlayer = ticTacToe.currentPlayer === 'X' ? 'O' : 'X';
+            document.getElementById('current-player').textContent = ticTacToe.currentPlayer;
+        }
+        
+        function checkTicTacToeWin() {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // linhas
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // colunas
+                [0, 4, 8], [2, 4, 6]             // diagonais
+            ];
+            
+            return winPatterns.some(pattern => {
+                const [a, b, c] = pattern;
+                return ticTacToe.board[a] !== '' && 
+                       ticTacToe.board[a] === ticTacToe.board[b] && 
+                       ticTacToe.board[a] === ticTacToe.board[c];
+            });
+        }
+        
+        function checkTicTacToeDraw() {
+            return ticTacToe.board.every(cell => cell !== '');
+        }
+        
+        // Jogo de Sequência
+        function initSequenceGame() {
+            sequenceGame.level = 1;
+            sequenceGame.score = 0;
+            sequenceGame.sequence = [];
+            sequenceGame.playerSequence = [];
+            sequenceGame.isPlaying = false;
+            
+            document.getElementById('sequence-level').textContent = '1';
+            document.getElementById('sequence-score').textContent = '0';
+            
+            // Adicionar evento aos botões
+            const buttons = document.querySelectorAll('.sequence-btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    if (!sequenceGame.isPlaying) return;
+                    
+                    const color = button.getAttribute('data-color');
+                    sequenceGame.playerSequence.push(color);
+                    button.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        button.style.transform = 'scale(1)';
+                    }, 300);
+                    
+                    checkSequence();
+                });
+            });
+            
+            // Botão de iniciar
+            document.getElementById('start-sequence').addEventListener('click', () => {
+                if (!sequenceGame.isPlaying) {
+                    playSequence();
+                }
+            });
+        }
+        
+        const sequenceGame = {
+            level: 1,
+            score: 0,
+            sequence: [],
+            playerSequence: [],
+            isPlaying: false
+        };
+        
+        function playSequence() {
+            sequenceGame.isPlaying = false;
+            sequenceGame.playerSequence = [];
+            
+            // Adicionar uma nova cor à sequência
+            const colors = ['red', 'green', 'blue', 'yellow'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            sequenceGame.sequence.push(randomColor);
+            
+            // Reproduzir a sequência
+            let i = 0;
+            const interval = setInterval(() => {
+                const button = document.querySelector(`.sequence-btn[data-color="${sequenceGame.sequence[i]}"]`);
+                button.style.opacity = '0.6';
+                setTimeout(() => {
+                    button.style.opacity = '1';
+                }, 500);
+                
+                i++;
+                if (i >= sequenceGame.sequence.length) {
+                    clearInterval(interval);
+                    sequenceGame.isPlaying = true;
+                }
+            }, 1000);
+        }
+        
+        function checkSequence() {
+            const currentIndex = sequenceGame.playerSequence.length - 1;
+            
+            if (sequenceGame.playerSequence[currentIndex] !== sequenceGame.sequence[currentIndex]) {
+                // Sequência errada - fim de jogo
+                sequenceGame.isPlaying = false;
+                alert(`Fim de jogo! Sua pontuação: ${sequenceGame.score}`);
+                return;
+            }
+            
+            if (sequenceGame.playerSequence.length === sequenceGame.sequence.length) {
+                // Sequência completa - próximo nível
+                sequenceGame.score += sequenceGame.level * 10;
+                sequenceGame.level++;
+                
+                document.getElementById('sequence-level').textContent = sequenceGame.level;
+                document.getElementById('sequence-score').textContent = sequenceGame.score;
+                
+                setTimeout(playSequence, 1500);
+            }
+        }
+    </script>
+</body>
+</html>
